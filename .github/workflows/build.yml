@@ -84,14 +84,25 @@ jobs:
           DISCORD_SDK_TOKEN: ${{ secrets.DISCORD_SDK_TOKEN }}
         run: scripts/fetch-discord-sdk.sh
 
-      - name: Generate project
+      - name: Generate project with XcodeGen
         run: |
+          xcodegen --version
           if [ -d Vendor/discord_partner_sdk.xcframework ]; then
             echo "Building with Discord Rich Presence"
             xcodegen generate --spec project-discord.yml
           else
-            xcodegen generate
+            xcodegen generate --spec project.yml
           fi
+          test -d colon3.xcodeproj
+
+      - name: Verify generated deployment targets
+        run: |
+          app_target="$(xcodebuild -project colon3.xcodeproj -target colon3 -showBuildSettings | awk -F ' = ' '/IPHONEOS_DEPLOYMENT_TARGET =/ { print $2; exit }')"
+          widget_target="$(xcodebuild -project colon3.xcodeproj -target TransfersWidget -showBuildSettings | awk -F ' = ' '/IPHONEOS_DEPLOYMENT_TARGET =/ { print $2; exit }')"
+          echo "App deployment target: $app_target"
+          echo "TransfersWidget deployment target: $widget_target"
+          test "$app_target" = "15.0"
+          test "$widget_target" = "16.0"
 
       - name: Build
         env:
