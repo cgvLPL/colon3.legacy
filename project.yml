@@ -77,7 +77,6 @@ targets:
         CODE_SIGN_STYLE: Automatic
         # Set this to your Apple ID team in Xcode (Signing & Capabilities) when building in the VM.
         DEVELOPMENT_TEAM: ""
-        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
     scheme: {}
 
   # Live Activity (Dynamic Island / Lock Screen) for transfers.
