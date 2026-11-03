@@ -10,23 +10,27 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $router.tab) {
-            Tab("Home", systemImage: "square.grid.2x2", value: AppTab.trending) {
-                HomeView().modifier(FallbackMiniPlayer(open: openPlayer))
-            }
-            Tab("Library", systemImage: "music.note.house", value: AppTab.library) {
-                LibraryView().modifier(FallbackMiniPlayer(open: openPlayer))
-            }
-            Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
-                SearchView().modifier(FallbackMiniPlayer(open: openPlayer))
-            }
-            Tab("Downloads", systemImage: "arrow.down.circle", value: AppTab.downloads) {
-                DownloadsView().modifier(FallbackMiniPlayer(open: openPlayer))
-            }
-            .badge(soulseek.activeDownloadCount)
-            Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
-                SettingsView()
-            }
-            .badge(updates.isUpdateAvailable ? 1 : 0)
+            HomeView()
+                .modifier(FallbackMiniPlayer(open: openPlayer))
+                .tabItem { Label("Home", systemImage: "square.grid.2x2") }
+                .tag(AppTab.trending)
+            LibraryView()
+                .modifier(FallbackMiniPlayer(open: openPlayer))
+                .tabItem { Label("Library", systemImage: "music.note.house") }
+                .tag(AppTab.library)
+            SearchView()
+                .modifier(FallbackMiniPlayer(open: openPlayer))
+                .tabItem { Label("Search", systemImage: "magnifyingglass") }
+                .tag(AppTab.search)
+            DownloadsView()
+                .modifier(FallbackMiniPlayer(open: openPlayer))
+                .tabItem { Label("Downloads", systemImage: "arrow.down.circle") }
+                .badge(soulseek.activeDownloadCount)
+                .tag(AppTab.downloads)
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .badge(updates.isUpdateAvailable ? 1 : 0)
+                .tag(AppTab.settings)
         }
         .modifier(TabAccessoryMiniPlayer(isVisible: player.current != nil, open: openPlayer))
         .modifier(RouterPresenters(active: !router.showPlayer))
@@ -35,7 +39,7 @@ struct ContentView: View {
                 .modifier(RouterPresenters(active: true))
                 .tint(Color(hex: accentHex))
         }
-        .onChange(of: library.artworkRevision) { _, _ in player.reloadArtwork() }
+        .onChange(of: library.artworkRevision) { _ in player.reloadArtwork() }
         .tint(Color(hex: accentHex))
     }
 
