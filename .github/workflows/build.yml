@@ -9,7 +9,7 @@ name: CI/CD
 on:
   push:
     # main → the stable install page; beta → a separate beta page at /beta/.
-    branches: [main, beta]
+    branches: [main, beta, ios15-compat]
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
