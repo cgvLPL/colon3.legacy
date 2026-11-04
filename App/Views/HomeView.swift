@@ -52,7 +52,7 @@ struct HomeView: View {
             }
             .navigationTitle("Home")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { CountryMenu() }
+                ToolbarItem(placement: .navigationBarTrailing) { CountryMenu() }
             }
             .refreshable { await trending.load(force: true) }
             .task { await trending.load() }
@@ -77,13 +77,17 @@ struct HomeView: View {
         if trending.isLoading {
             ProgressView().frame(maxWidth: .infinity).padding(.vertical, 40)
         } else if let error = trending.error {
-            ContentUnavailableView {
+            VStack(spacing: 10) {
                 Label("Couldn't Load the Charts", systemImage: "chart.line.downtrend.xyaxis")
-            } description: {
+                    .font(.headline)
                 Text(error)
-            } actions: {
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
                 Button("Try Again") { Task { await trending.load(force: true) } }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
         }
     }
 

@@ -3,7 +3,7 @@ name: colon3
 options:
   bundleIdPrefix: com.aminewallah
   deploymentTarget:
-    iOS: "18.0"
+    iOS: "15.0"
   createIntermediateGroups: true
 
 packages:
@@ -103,3 +103,4 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
