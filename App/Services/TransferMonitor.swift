@@ -17,7 +17,13 @@ final class TransferMonitor {
     /// Backups and restores keep the app awake too (no Live Activity for them).
     private var backupWorking = false
     private let keeper = BackgroundKeeper()
-    private var activity: Activity<TransferActivityAttributes>?
+    /// The running Live Activity (an `Activity<TransferActivityAttributes>`, iOS 16.2+).
+    private var activityBox: Any?
+    @available(iOS 16.2, *)
+    private var activity: Activity<TransferActivityAttributes>? {
+        get { activityBox as? Activity<TransferActivityAttributes> }
+        set { activityBox = newValue }
+    }
     private var subscriptions = Set<AnyCancellable>()
     private var heartbeat: Timer?
     private var lastReconnect = Date.distantPast
@@ -38,8 +44,10 @@ final class TransferMonitor {
         self.stats = stats
 
         // Activities left over from a previous run (crash, force quit) would otherwise linger.
-        for stale in Activity<TransferActivityAttributes>.activities {
-            Task { await stale.end(nil, dismissalPolicy: .immediate) }
+        if #available(iOS 16.2, *) {
+            for stale in Activity<TransferActivityAttributes>.activities {
+                Task { await stale.end(nil, dismissalPolicy: .immediate) }
+            }
         }
 
         soulseek.$downloads
@@ -173,6 +181,7 @@ final class TransferMonitor {
     }
 
     private func showActivity(_ state: TransferActivityAttributes.ContentState) {
+        guard #available(iOS 16.2, *) else { return }
         let content = ActivityContent(state: state, staleDate: Date().addingTimeInterval(90))
         if let activity {
             Task { await activity.update(content) }
@@ -185,6 +194,7 @@ final class TransferMonitor {
     }
 
     private func endActivity(finished: Bool) {
+        guard #available(iOS 16.2, *) else { return }
         guard let activity else { return }
         self.activity = nil
         let final = TransferActivityAttributes.ContentState(

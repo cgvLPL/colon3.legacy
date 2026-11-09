@@ -39,7 +39,7 @@ struct MiniPlayerContent: View {
                 Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                     .font(.title3)
                     .frame(width: 36, height: 36)
-                    .contentTransition(.symbolEffect(.replace))
+                    .compatSymbolReplaceTransition(value: player.isPlaying)
             }
             .disabled(player.current == nil)
 

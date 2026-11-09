@@ -91,7 +91,7 @@ struct LyricsView: View {
                 .animation(.easeOut(duration: 0.35), value: active)
             }
             .simultaneousGesture(DragGesture().onChanged { _ in userScrolledAt = Date() })
-            .onChange(of: active) { _, newValue in
+            .compatOnChange(of: active) { newValue in
                 // Don't yank the view while the user is reading ahead.
                 if let userScrolledAt, Date().timeIntervalSince(userScrolledAt) < 4 { return }
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.9)) {

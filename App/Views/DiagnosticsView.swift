@@ -34,7 +34,7 @@ struct DiagnosticsView: View {
         .navigationTitle("Diagnostics & Logs")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .compatTrailing) {
                 Button {
                     shareCurrent()
                 } label: {
@@ -57,11 +57,11 @@ struct DiagnosticsView: View {
             }
         }
         .sheet(item: $share) { file in
-            ActivityView(items: [file.url]).presentationDetents([.medium, .large])
+            ActivityView(items: [file.url]).compatMediumLargeDetents()
         }
         .onReceive(refresh) { _ in if tab == .log { lines = Diagnostics.shared.lines } }
         .onAppear(perform: reload)
-        .onChange(of: tab) { _, _ in reload() }
+        .compatOnChange(of: tab) { _ in reload() }
     }
 
     private var logList: some View {
@@ -83,7 +83,7 @@ struct DiagnosticsView: View {
                     Text("No log yet.").foregroundStyle(.secondary)
                 }
             }
-            .onChange(of: lines.count) { _, _ in
+            .compatOnChange(of: lines.count) { _ in
                 withAnimation { proxy.scrollTo(-1, anchor: .bottom) }
             }
             .onAppear { proxy.scrollTo(-1, anchor: .bottom) }
@@ -149,7 +149,7 @@ struct CrashDetailView: View {
         .navigationTitle(report.kind)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .compatTrailing) {
                 Button {
                     share = ExportFile(url: report.url)
                 } label: {
@@ -158,7 +158,7 @@ struct CrashDetailView: View {
             }
         }
         .sheet(item: $share) { file in
-            ActivityView(items: [file.url]).presentationDetents([.medium, .large])
+            ActivityView(items: [file.url]).compatMediumLargeDetents()
         }
     }
 }

@@ -90,10 +90,8 @@ struct PlaylistsListContent: View {
             .padding(.vertical, 8)
         }
         .padding(.bottom, 24)
-        .alert("New Playlist", isPresented: $naming) {
-            TextField("Name", text: $newName)
-            Button("Cancel", role: .cancel) {}
-            Button("Create") { playlists.create(named: newName) }
+        .compatTextFieldAlert("New Playlist", isPresented: $naming, text: $newName, confirm: "Create") {
+            playlists.create(named: newName)
         }
     }
 
@@ -144,7 +142,7 @@ struct PlaylistsListContent: View {
     }
 
     private func row(route: PlaylistRoute, name: String, tracks: [Track], symbol: String?, subtitle: String? = nil) -> some View {
-        NavigationLink(value: route) {
+        CompatNavigationLink(value: route) {
             HStack(spacing: 14) {
                 PlaylistArtwork(tracks: tracks, symbol: symbol, size: 64)
                 VStack(alignment: .leading, spacing: 2) {
@@ -312,7 +310,7 @@ struct PlaylistDetailView: View {
         }
         .toolbar {
             if let playlist {
-                ToolbarItemGroup(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .compatTrailing) {
                     EditButton()
                     Menu {
                         Button { addingSongs = true } label: { Label("Add Songs", systemImage: "plus") }
@@ -333,10 +331,8 @@ struct PlaylistDetailView: View {
                 }
             }
         }
-        .alert("Rename Playlist", isPresented: $renaming) {
-            TextField("Name", text: $newName)
-            Button("Cancel", role: .cancel) {}
-            Button("Save") { if let playlist { playlists.rename(playlist, to: newName) } }
+        .compatTextFieldAlert("Rename Playlist", isPresented: $renaming, text: $newName, confirm: "Save") {
+            if let playlist { playlists.rename(playlist, to: newName) }
         }
         .confirmationDialog("Delete “\(name)”?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Delete Playlist", role: .destructive) {
@@ -350,7 +346,7 @@ struct PlaylistDetailView: View {
             if let playlist { SongPickerSheet(playlist: playlist) }
         }
         .sheet(item: $exportURL) { file in
-            ActivityView(items: [file.url]).presentationDetents([.medium, .large])
+            ActivityView(items: [file.url]).compatMediumLargeDetents()
         }
         .confirmDelete($pendingDelete)
     }
@@ -432,7 +428,7 @@ struct AddToPlaylistSheet: View {
     @State private var newName = ""
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             List {
                 Button {
                     newName = ""
@@ -464,16 +460,12 @@ struct AddToPlaylistSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             }
-            .alert("New Playlist", isPresented: $naming) {
-                TextField("Name", text: $newName)
-                Button("Cancel", role: .cancel) {}
-                Button("Create") {
-                    playlists.create(named: newName, with: request.tracks)
-                    dismiss()
-                }
+            .compatTextFieldAlert("New Playlist", isPresented: $naming, text: $newName, confirm: "Create") {
+                playlists.create(named: newName, with: request.tracks)
+                dismiss()
             }
         }
-        .presentationDetents([.medium, .large])
+        .compatMediumLargeDetents()
     }
 }
 
@@ -497,7 +489,7 @@ struct SongPickerSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             List(results) { track in
                 let picked = chosen.contains(track.id)
                 let already = playlist.trackIDs.contains(track.id)

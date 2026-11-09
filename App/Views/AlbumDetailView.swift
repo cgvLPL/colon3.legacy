@@ -76,7 +76,7 @@ struct AlbumDetailView: View {
                     .font(.title2.weight(.bold))
                     .multilineTextAlignment(.center)
                 if let artist = library.artist(named: album.artist) {
-                    NavigationLink(value: artist) {
+                    CompatNavigationLink(value: artist) {
                         Text(album.artist).font(.title3).foregroundStyle(.tint)
                     }
                     .buttonStyle(.plain)
@@ -155,7 +155,7 @@ struct AlbumDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .compatTrailing) {
                 Button {
                     favorites.toggle(album)
                 } label: {
@@ -170,7 +170,7 @@ struct AlbumDetailView: View {
                             library.bumpArtwork()
                         }
                     } label: {
-                        Label("Refresh Artwork", systemImage: "photo.badge.arrow.down")
+                        Label("Refresh Artwork", systemImage: CompatSymbol.name("photo.badge.arrow.down", since: 17, fallback: "photo"))
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -179,7 +179,7 @@ struct AlbumDetailView: View {
         }
         .sheet(item: $findingTrack) { track in
             FindTrackSheet(track: track, album: current)
-                .presentationDetents([.medium, .large])
+                .compatMediumLargeDetents()
         }
         .confirmDelete($pendingDelete) { deleted in
             // Leave the page once the whole album is gone.
@@ -266,7 +266,7 @@ struct ArtistDetailView: View {
                     .padding(.top, 8)
                 LazyVGrid(columns: columns, alignment: .leading, spacing: 20) {
                     ForEach(artist.albums) { album in
-                        NavigationLink(value: album) {
+                        CompatNavigationLink(value: album) {
                             VStack(alignment: .leading, spacing: 3) {
                                 ArtworkView(source: .album(album), cornerRadius: 8)
                                 Text(album.title).font(.subheadline.weight(.medium)).lineLimit(1)
@@ -371,7 +371,7 @@ struct FindTrackSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             List {
                 Section {
                     if soulseek.trackCandidates.isEmpty {

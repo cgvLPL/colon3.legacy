@@ -26,7 +26,9 @@ enum AppServices {
             .map { $0.map(\.name) }
             .removeDuplicates()
             .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
-            .sink { _ in Colon3Shortcuts.updateAppShortcutParameters() }
+            .sink { _ in
+                if #available(iOS 17, *) { Colon3Shortcuts.updateAppShortcutParameters() }
+            }
             .store(in: &subscriptions)
     }
 
@@ -44,13 +46,17 @@ enum AppServices {
     }
 }
 
-enum SiriError: Error, CustomLocalizedStringResourceConvertible {
+enum SiriError: Error {
     case notReady
     case emptyLibrary
     case notFound(String)
     case emptyPlaylist(String)
     case noFavorites
+}
 
+// Siri and Shortcuts need iOS 17 (AudioPlaybackIntent); on older systems none of this is used.
+@available(iOS 17, *)
+extension SiriError: CustomLocalizedStringResourceConvertible {
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .notReady:
@@ -69,6 +75,7 @@ enum SiriError: Error, CustomLocalizedStringResourceConvertible {
 
 // MARK: Playlists
 
+@available(iOS 17, *)
 struct PlaylistEntity: AppEntity {
     static let typeDisplayRepresentation: TypeDisplayRepresentation = "Playlist"
     static let defaultQuery = PlaylistEntityQuery()
@@ -81,6 +88,7 @@ struct PlaylistEntity: AppEntity {
     }
 }
 
+@available(iOS 17, *)
 struct PlaylistEntityQuery: EntityStringQuery {
     @MainActor
     func entities(for identifiers: [UUID]) async throws -> [PlaylistEntity] {
@@ -106,6 +114,7 @@ struct PlaylistEntityQuery: EntityStringQuery {
 
 // MARK: Intents
 
+@available(iOS 17, *)
 struct PlayMusicIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Play Music"
 
@@ -122,6 +131,7 @@ struct PlayMusicIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct PlaySearchIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Play Song, Album or Artist"
 
@@ -141,6 +151,7 @@ struct PlaySearchIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct ShuffleLibraryIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Shuffle Library"
 
@@ -153,6 +164,7 @@ struct ShuffleLibraryIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct PlayPlaylistIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Play Playlist"
 
@@ -184,6 +196,7 @@ struct PlayPlaylistIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct ShufflePlaylistIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Shuffle Playlist"
 
@@ -207,6 +220,7 @@ struct ShufflePlaylistIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct PlayFavoritesIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Play Favourites"
 
@@ -230,6 +244,7 @@ struct PlayFavoritesIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct PausePlaybackIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Pause"
 
@@ -240,6 +255,7 @@ struct PausePlaybackIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct NextTrackIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Next Song"
 
@@ -250,6 +266,7 @@ struct NextTrackIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct PreviousTrackIntent: AudioPlaybackIntent {
     static let title: LocalizedStringResource = "Previous Song"
 
@@ -260,6 +277,7 @@ struct PreviousTrackIntent: AudioPlaybackIntent {
     }
 }
 
+@available(iOS 17, *)
 struct NowPlayingIntent: AppIntent {
     static let title: LocalizedStringResource = "What's Playing"
 
@@ -276,6 +294,7 @@ struct NowPlayingIntent: AppIntent {
 // MARK: Phrases
 
 /// The phrases Siri knows without any setup. Each must name the app; at most 10 shortcuts.
+@available(iOS 17, *)
 struct Colon3Shortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: PlayMusicIntent(), phrases: [

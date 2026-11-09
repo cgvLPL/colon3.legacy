@@ -94,10 +94,8 @@ struct EqualizerView: View {
                 Button("Done") { dismiss() }
             }
         }
-        .alert("Save Preset", isPresented: $naming) {
-            TextField("Name", text: $newName)
-            Button("Save") { equalizer.saveCurrent(as: newName) }
-            Button("Cancel", role: .cancel) {}
+        .compatTextFieldAlert("Save Preset", isPresented: $naming, text: $newName, confirm: "Save") {
+            equalizer.saveCurrent(as: newName)
         }
     }
 
@@ -167,7 +165,7 @@ struct VerticalGainSlider: View {
                         if snapped != value { value = snapped }
                     }
             )
-            .sensoryFeedback(.selection, trigger: value == 0)
+            .compatSensoryFeedback(.selection, trigger: value == 0)
         }
     }
 }

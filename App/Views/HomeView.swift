@@ -27,7 +27,7 @@ struct HomeView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 30) {
                     if !soulseek.isLoggedIn {
@@ -52,11 +52,11 @@ struct HomeView: View {
             }
             .navigationTitle("Home")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { CountryMenu() }
+                ToolbarItem(placement: .compatTrailing) { CountryMenu() }
             }
             .refreshable { await trending.load(force: true) }
             .task { await trending.load() }
-            .navigationDestination(for: HomeRoute.self) { route in
+            .compatNavigationDestination(for: HomeRoute.self) { route in
                 switch route {
                 case let .songs(section):
                     ChartSongList(section: section)
@@ -68,7 +68,7 @@ struct HomeView: View {
                     ReleaseDetailView(album: album)
                 }
             }
-            .navigationDestination(for: Album.self) { AlbumDetailView(album: $0) }
+            .compatNavigationDestination(for: Album.self) { AlbumDetailView(album: $0) }
         }
     }
 
@@ -77,11 +77,8 @@ struct HomeView: View {
         if trending.isLoading {
             ProgressView().frame(maxWidth: .infinity).padding(.vertical, 40)
         } else if let error = trending.error {
-            ContentUnavailableView {
-                Label("Couldn't Load the Charts", systemImage: "chart.line.downtrend.xyaxis")
-            } description: {
-                Text(error)
-            } actions: {
+            CompatUnavailableView("Couldn't Load the Charts", systemImage: CompatSymbol.name("chart.line.downtrend.xyaxis", since: 16, fallback: "wifi.exclamationmark"),
+                                  description: Text(error)) {
                 Button("Try Again") { Task { await trending.load(force: true) } }
             }
         }
@@ -153,7 +150,7 @@ private struct ShelfHeader: View {
         }
         Group {
             if let route {
-                NavigationLink(value: route) { label }
+                CompatNavigationLink(value: route) { label }
             } else {
                 label
             }
@@ -172,13 +169,14 @@ private struct SongShelf: View {
             LazyHGrid(rows: Array(repeating: GridItem(.fixed(64), spacing: 0), count: 4), spacing: 16) {
                 ForEach(entries) { entry in
                     ChartSongRow(entry: entry, showRank: false, list: entries)
-                        .containerRelativeFrame(.horizontal) { width, _ in width - 36 }
+                        .compatShelfWidth(inset: 36)
                 }
             }
-            .scrollTargetLayout()
+            .compatShelfContent()
+            // Before iOS 17: snap a column at a time (column width + 16 pt spacing).
+            .compatShelfSnapping(interval: CompatUIKit.shelfContainerWidth - 36 + 16)
         }
-        .contentMargins(.horizontal, 20, for: .scrollContent)
-        .scrollTargetBehavior(.viewAligned)
+        .compatShelfPaging()
     }
 }
 
@@ -191,10 +189,11 @@ private struct CardShelf<Content: View>: View {
             LazyHStack(alignment: .top, spacing: 14) {
                 content()
             }
-            .scrollTargetLayout()
+            .compatShelfContent()
+            // Before iOS 17: snap a card at a time (card width + 14 pt spacing).
+            .compatShelfSnapping(interval: (CompatUIKit.shelfContainerWidth - 14) / 2 + 14)
         }
-        .contentMargins(.horizontal, 20, for: .scrollContent)
-        .scrollTargetBehavior(.viewAligned)
+        .compatShelfPaging()
     }
 }
 
@@ -247,7 +246,7 @@ struct ChartSongRow: View {
             if let track {
                 Button { play(track) } label: { Label("Play", systemImage: "play") }
                 Button { player.playNext([track]) } label: {
-                    Label("Play Next", systemImage: "text.line.first.and.arrowtriangle.forward")
+                    Label("Play Next", systemImage: CompatSymbol.name("text.line.first.and.arrowtriangle.forward", since: 16, fallback: "text.insert"))
                 }
             } else if fetch?.isActive != true {
                 Button { trending.download(entry) } label: { Label("Download", systemImage: "arrow.down.circle") }
@@ -344,7 +343,7 @@ private struct ChartSongList: View {
         .listStyle(.plain)
         .navigationTitle(section.title)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) { CountryMenu() }
+            ToolbarItem(placement: .compatTrailing) { CountryMenu() }
         }
     }
 
@@ -391,9 +390,9 @@ private struct ReleaseCard: View {
         .modifier(ShelfWidth(active: inShelf))
         .contentShape(Rectangle())
 
-        NavigationLink(value: HomeRoute.release(album)) { card }
+        CompatNavigationLink(value: HomeRoute.release(album)) { card }
         .buttonStyle(.plain)
-        .contextMenu {
+        .compatContextMenu {
             Button { searchSoulseekForAlbum(album, router: router) } label: {
                 Label("Search on Soulseek", systemImage: "magnifyingglass")
             }
@@ -503,7 +502,7 @@ private struct ReleaseDetailView: View {
             .buttonStyle(.bordered)
             .controlSize(.large)
             if let owned {
-                NavigationLink(value: owned) {
+                CompatNavigationLink(value: owned) {
                     Label("Open in Library", systemImage: "music.note.house")
                         .font(.subheadline)
                 }
@@ -644,7 +643,7 @@ private struct PlayedCard: View {
         Group {
             switch item {
             case let .album(album):
-                NavigationLink(value: album) { card }
+                CompatNavigationLink(value: album) { card }
             case let .single(track):
                 Button { player.play([track]) } label: { card }
             }
@@ -654,7 +653,7 @@ private struct PlayedCard: View {
             Button { player.play(item.tracks) } label: { Label("Play", systemImage: "play") }
             Button { player.play(item.tracks, shuffled: true) } label: { Label("Shuffle", systemImage: "shuffle") }
             Button { player.playNext(item.tracks) } label: {
-                Label("Play Next", systemImage: "text.line.first.and.arrowtriangle.forward")
+                Label("Play Next", systemImage: CompatSymbol.name("text.line.first.and.arrowtriangle.forward", since: 16, fallback: "text.insert"))
             }
         }
     }
@@ -687,7 +686,7 @@ private struct ShelfWidth: ViewModifier {
 
     func body(content: Content) -> some View {
         if active {
-            content.containerRelativeFrame(.horizontal, count: 2, spacing: 14)
+            content.compatShelfWidth(count: 2, spacing: 14)
         } else {
             content
         }

@@ -33,14 +33,14 @@ struct LibraryView: View {
     private let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             content
                 .navigationTitle("Library")
                 .searchable(text: $query, prompt: "Search your library")
                 .toolbar { toolbar }
-                .navigationDestination(for: Album.self) { AlbumDetailView(album: $0) }
-                .navigationDestination(for: ArtistEntry.self) { ArtistDetailView(artist: $0) }
-                .navigationDestination(for: PlaylistRoute.self) { PlaylistDetailView(route: $0) }
+                .compatNavigationDestination(for: Album.self) { AlbumDetailView(album: $0) }
+                .compatNavigationDestination(for: ArtistEntry.self) { ArtistDetailView(artist: $0) }
+                .compatNavigationDestination(for: PlaylistRoute.self) { PlaylistDetailView(route: $0) }
                 .safeAreaInset(edge: .bottom) {
                     if selecting { selectionBar }
                 }
@@ -48,7 +48,7 @@ struct LibraryView: View {
                     selection.removeAll()
                     selecting = false
                 }
-                .onChange(of: scope) { _, _ in selection.removeAll() }
+                .compatOnChange(of: scope) { _ in selection.removeAll() }
         }
     }
 
@@ -225,7 +225,7 @@ struct LibraryView: View {
             } else {
                 switch item {
                 case let .album(album):
-                    NavigationLink(value: album) { label }
+                    CompatNavigationLink(value: album) { label }
                 case let .single(track):
                     Button { player.play([track]) } label: { label }
                 }
@@ -336,7 +336,7 @@ struct LibraryView: View {
                             sectionHeader(section.letter).padding(.horizontal, 20)
                         }
                         ForEach(section.items) { artist in
-                            NavigationLink(value: artist) {
+                            CompatNavigationLink(value: artist) {
                                 HStack(spacing: 14) {
                                     ArtworkView(source: artist.artwork, size: 56, cornerRadius: 28)
                                     VStack(alignment: .leading, spacing: 2) {
@@ -398,7 +398,7 @@ struct LibraryView: View {
         return HStack {
             Button { player.play(tracks); endSelection() } label: { Label("Play", systemImage: "play.fill") }
             Spacer()
-            Button { player.playNext(tracks); endSelection() } label: { Label("Play Next", systemImage: "text.line.first.and.arrowtriangle.forward") }
+            Button { player.playNext(tracks); endSelection() } label: { Label("Play Next", systemImage: CompatSymbol.name("text.line.first.and.arrowtriangle.forward", since: 16, fallback: "text.insert")) }
             Spacer()
             Button { toggleFavorites(); endSelection() } label: { Label("Favorite", systemImage: "star") }
             Spacer()
@@ -438,14 +438,14 @@ struct LibraryView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .compatLeading) {
             if scope == .albums || scope == .songs {
                 Button(selecting ? "Done" : "Select") {
                     if selecting { endSelection() } else { selecting = true }
                 }
             }
         }
-        ToolbarItemGroup(placement: .topBarTrailing) {
+        ToolbarItemGroup(placement: .compatTrailing) {
             Menu {
                 Toggle(isOn: $favoritesOnly) {
                     Label("Favorites Only", systemImage: "star")

@@ -8,7 +8,7 @@ struct SearchView: View {
     @State private var showFilters = false
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             List {
                 if !soulseek.isLoggedIn {
                     Section { ConnectionBanner() }
@@ -36,7 +36,7 @@ struct SearchView: View {
                     }
                 }
                 ForEach(soulseek.results) { folder in
-                    NavigationLink(value: folder.id) {
+                    CompatNavigationLink(value: folder.id) {
                         FolderRow(folder: folder)
                     }
                 }
@@ -52,11 +52,11 @@ struct SearchView: View {
                 soulseek.search(pending)
                 router.pendingSearch = nil
             }
-            .navigationDestination(for: String.self) { id in
+            .compatNavigationDestination(for: String.self) { id in
                 FolderDetailView(folderID: id)
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .compatTrailing) {
                     Button {
                         showFilters = true
                     } label: {
@@ -67,7 +67,7 @@ struct SearchView: View {
             }
             .sheet(isPresented: $showFilters) {
                 SearchFiltersView()
-                    .presentationDetents([.medium, .large])
+                    .compatMediumLargeDetents()
             }
             .overlay {
                 if soulseek.currentQuery.isEmpty && soulseek.isLoggedIn {
@@ -226,7 +226,7 @@ struct SearchFiltersView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             Form {
                 Section {
                     Picker("Sort By", selection: $soulseek.filters.sort) {
@@ -251,7 +251,7 @@ struct SearchFiltersView: View {
                 Section {
                     Toggle("Free Upload Slot Only", isOn: $soulseek.filters.freeSlotOnly)
                     Stepper(value: $soulseek.filters.minFiles, in: 1...30) {
-                        LabeledContent("Minimum Files", value: soulseek.filters.minFiles == 1 ? "Any" : "\(soulseek.filters.minFiles)")
+                        CompatLabeledContent("Minimum Files", value: soulseek.filters.minFiles == 1 ? "Any" : "\(soulseek.filters.minFiles)")
                     }
                 } header: {
                     Text("Availability")

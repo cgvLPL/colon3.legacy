@@ -50,7 +50,7 @@ struct DownloadsView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             List(selection: $selection) {
                 if !soulseek.isLoggedIn {
                     Section { ConnectionBanner() }
@@ -86,7 +86,7 @@ struct DownloadsView: View {
                     Section {
                         if !collapsed.contains(uploadsKey) {
                             ForEach(soulseek.uploads) { item in
-                                UploadRow(item: item).selectionDisabled()
+                                UploadRow(item: item).compatSelectionDisabled()
                             }
                         }
                     } header: {
@@ -107,9 +107,15 @@ struct DownloadsView: View {
             .safeAreaInset(edge: .bottom) {
                 if isSelecting { selectionBar }
             }
-            .onChange(of: soulseek.downloads.map(\.id)) { _, ids in
+            .compatOnChange(of: soulseek.downloads.map(\.id)) { ids in
                 // Drop selections whose rows went away.
                 selection.formIntersection(ids)
+            }
+            .compatOnChange(of: selection) { picked in
+                // Only downloads can be selected: iOS 17 stops upload rows with
+                // selectionDisabled; earlier systems drop them here.
+                let downloadIDs = Set(soulseek.downloads.map(\.id))
+                if !picked.isSubset(of: downloadIDs) { selection = picked.intersection(downloadIDs) }
             }
             .confirmationDialog(deleteTitle, isPresented: $confirmDeleteFiles, titleVisibility: .visible) {
                 Button("Delete Files", role: .destructive) { deleteSelectedFiles() }
@@ -128,7 +134,7 @@ struct DownloadsView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .compatLeading) {
             if isSelecting {
                 let all = Set(soulseek.visibleDownloads.map(\.id))
                 Button(selection == all && !all.isEmpty ? "Deselect All" : "Select All") {
@@ -146,7 +152,7 @@ struct DownloadsView: View {
                 .disabled(groups.isEmpty && soulseek.uploads.isEmpty)
             }
         }
-        ToolbarItemGroup(placement: .topBarTrailing) {
+        ToolbarItemGroup(placement: .compatTrailing) {
             if !isSelecting {
                 Menu {
                     Button { soulseek.retryAllFailed() } label: { Label("Retry All Failed", systemImage: "arrow.clockwise") }
@@ -185,8 +191,8 @@ struct DownloadsView: View {
             .disabled(failed == 0)
             Spacer()
             Menu {
-                Button { player.playNext(finishedSongs) } label: { Label("Play Next", systemImage: "text.line.first.and.arrowtriangle.forward") }
-                Button { player.addToQueue(finishedSongs) } label: { Label("Add to Queue", systemImage: "text.line.last.and.arrowtriangle.forward") }
+                Button { player.playNext(finishedSongs) } label: { Label("Play Next", systemImage: CompatSymbol.name("text.line.first.and.arrowtriangle.forward", since: 16, fallback: "text.insert")) }
+                Button { player.addToQueue(finishedSongs) } label: { Label("Add to Queue", systemImage: CompatSymbol.name("text.line.last.and.arrowtriangle.forward", since: 16, fallback: "text.append")) }
                 Button { router.addToPlaylist(finishedSongs) } label: { Label("Add to Playlist…", systemImage: "text.badge.plus") }
             } label: {
                 Label("Songs", systemImage: "music.note.list")

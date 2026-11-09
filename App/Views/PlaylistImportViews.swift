@@ -33,7 +33,7 @@ struct PlaylistImportSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             Group {
                 if showingProgress, importer.job != nil {
                     ImportProgressView()
@@ -247,7 +247,7 @@ struct SpotifyAccountSection: View {
             if spotify.isLoggedIn {
                 Label("Logged in as \(spotify.displayName ?? "Spotify user")", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
-                LabeledContent("Client ID", value: spotify.clientID)
+                CompatLabeledContent("Client ID", value: spotify.clientID)
                     .font(.footnote.monospaced())
                     .lineLimit(1)
                 Button("Log Out", role: .destructive) { spotify.logOut() }
@@ -329,17 +329,13 @@ struct YouTubeMusicImportPicker: View {
         List {
             RunningImportBanner(onShow: onStart)
             Section {
-                TextField("Playlist link", text: $link, axis: .vertical)
+                CompatGrowingTextField(title: "Playlist link", text: $link)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.URL)
-                    .lineLimit(1...3)
                 if link.isEmpty {
                     // PasteButton reads the clipboard only when tapped, so iOS doesn't ask.
-                    PasteButton(payloadType: String.self) { strings in
-                        guard let first = strings.first else { return }
-                        Task { @MainActor in link = first }
-                    }
+                    CompatPasteButton { link = $0 }
                     .buttonBorderShape(.capsule)
                 }
                 Button {

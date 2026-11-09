@@ -88,7 +88,7 @@ struct SectionIndexBar: View {
                 .onChanged { value in select(at: value.location.y) }
                 .onEnded { _ in current = nil }
         )
-        .sensoryFeedback(.selection, trigger: current)
+        .compatSensoryFeedback(.selection, trigger: current)
         .accessibilityHidden(true)
     }
 
@@ -137,7 +137,7 @@ struct TrackRow: View {
                         Image(systemName: player.isPlaying ? "waveform" : "speaker.fill")
                             .font(.caption)
                             .foregroundStyle(.tint)
-                            .symbolEffect(.variableColor.iterative, isActive: player.isPlaying)
+                            .compatVariableColorEffect(isActive: player.isPlaying)
                     }
                     Text(track.title)
                         .lineLimit(1)
@@ -182,12 +182,12 @@ struct TrackMenuItems: View {
         Button {
             player.playNext(tracks)
         } label: {
-            Label("Play Next", systemImage: "text.line.first.and.arrowtriangle.forward")
+            Label("Play Next", systemImage: CompatSymbol.name("text.line.first.and.arrowtriangle.forward", since: 16, fallback: "text.insert"))
         }
         Button {
             player.addToQueue(tracks)
         } label: {
-            Label("Add to Queue", systemImage: "text.line.last.and.arrowtriangle.forward")
+            Label("Add to Queue", systemImage: CompatSymbol.name("text.line.last.and.arrowtriangle.forward", since: 16, fallback: "text.append"))
         }
         Button {
             router.addToPlaylist(tracks)
@@ -222,7 +222,7 @@ struct TrackMenuItems: View {
             }
         }
         if tracks.count == 1, let track = tracks.first {
-            ShareLink(item: track.url) {
+            CompatShareLink(item: track.url) {
                 Label("Share File", systemImage: "square.and.arrow.up")
             }
         }
@@ -333,6 +333,6 @@ struct EmptyStateView: View {
     let systemImage: String
 
     var body: some View {
-        ContentUnavailableView(title, systemImage: systemImage, description: Text(message))
+        CompatUnavailableView(title, systemImage: systemImage, description: Text(message))
     }
 }

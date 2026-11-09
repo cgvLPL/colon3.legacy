@@ -3,7 +3,7 @@ import Foundation
 
 /// Live Activity for Soulseek transfers, shown in the Dynamic Island and on the Lock Screen while
 /// downloads or uploads run and no song is playing. Compiled into both the app and the widget.
-struct TransferActivityAttributes: ActivityAttributes {
+struct TransferActivityAttributes: Codable {
     struct ContentState: Codable, Hashable {
         var downloading: Int
         var uploading: Int
@@ -56,3 +56,7 @@ struct TransferActivityAttributes: ActivityAttributes {
     /// The app's accent colour at the time the activity started.
     var accentHex: String
 }
+
+// Live Activities need iOS 16.1; on older systems the app just doesn't show one.
+@available(iOS 16.1, *)
+extension TransferActivityAttributes: ActivityAttributes {}

@@ -123,12 +123,12 @@ struct BackupView: View {
                 Button("Back Up Now") { backup.backUpNow() }
                     .disabled(!backup.isLibraryReady || backup.search?.isRunning == true)
             }
-            LabeledContent("Last Backup", value: backup.lastBackup.map { $0.formatted(.relative(presentation: .named)) } ?? "Never")
+            CompatLabeledContent("Last Backup", value: backup.lastBackup.map { $0.formatted(.relative(presentation: .named)) } ?? "Never")
             Toggle("Back Up Automatically", isOn: $backup.automatic)
             Toggle("Include Music", isOn: $backup.includeMusic)
             if backup.includeMusic {
                 Toggle("Use Cellular Data", isOn: $backup.useCellular)
-                LabeledContent("Songs on Google Drive", value: "\(backup.uploadedSongs)")
+                CompatLabeledContent("Songs on Google Drive", value: "\(backup.uploadedSongs)")
             }
         } header: {
             Text("Back Up")
@@ -298,17 +298,17 @@ struct RestoreBackupSheet: View {
     private var file: BackupFile { request.backup }
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             Form {
                 Section {
-                    LabeledContent("Made On", value: file.device)
-                    LabeledContent("Date", value: file.created.formatted(date: .abbreviated, time: .shortened))
-                    LabeledContent("Songs", value: "\(file.songs.count)")
-                    LabeledContent("Playlists", value: "\(file.playlists.count)")
-                    LabeledContent("Favourites", value: "\(file.favoriteSongs.count + file.favoriteAlbums.count)")
+                    CompatLabeledContent("Made On", value: file.device)
+                    CompatLabeledContent("Date", value: file.created.formatted(date: .abbreviated, time: .shortened))
+                    CompatLabeledContent("Songs", value: "\(file.songs.count)")
+                    CompatLabeledContent("Playlists", value: "\(file.playlists.count)")
+                    CompatLabeledContent("Favourites", value: "\(file.favoriteSongs.count + file.favoriteAlbums.count)")
                     let onDrive = (file.music ?? []).filter(\.isAudio).count
                     if onDrive > 0 {
-                        LabeledContent("Songs on Google Drive", value: "\(onDrive)")
+                        CompatLabeledContent("Songs on Google Drive", value: "\(onDrive)")
                     }
                 } header: {
                     Text(request.source)
@@ -342,7 +342,7 @@ struct RestoreBackupSheet: View {
             .navigationTitle("Restore Backup")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .compatTrailing) {
                     Button(summary == nil ? "Cancel" : "Done") { dismiss() }
                 }
             }

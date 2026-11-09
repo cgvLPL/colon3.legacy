@@ -64,11 +64,11 @@ struct NowPlayingView: View {
         .foregroundStyle(.white)
         .background { PlayerBackground(image: player.artwork) }
         .environment(\.colorScheme, .dark)
-        .presentationDragIndicator(.hidden)
-        .presentationBackground(.black)
+        .compatHiddenDragIndicator()
+        .compatPresentationBackground(.black)
         .sheet(isPresented: $showEqualizer) {
-            NavigationStack { EqualizerView(equalizer: player.equalizer) }
-                .presentationDetents([.medium, .large])
+            CompatNavigationStack { EqualizerView(equalizer: player.equalizer) }
+                .compatMediumLargeDetents()
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: mode)
         .animation(.spring(response: 0.35, dampingFraction: 0.85), value: showSpeed)
@@ -126,9 +126,9 @@ struct NowPlayingView: View {
                 Image(systemName: favorites.isFavorite(track) ? "star.fill" : "star")
                     .font(.title3.weight(.semibold))
                     .frame(width: 34, height: 34)
-                    .contentTransition(.symbolEffect(.replace))
+                    .compatSymbolReplaceTransition(value: favorites.isFavorite(track))
             }
-            .sensoryFeedback(.success, trigger: favorites.isFavorite(track))
+            .compatSensoryFeedback(.success, trigger: favorites.isFavorite(track))
             moreMenu(track)
         }
         .padding(.bottom, compact ? 12 : 0)
@@ -167,12 +167,12 @@ struct NowPlayingView: View {
                     library.removeLyricsFile(for: track)
                     router.lyricsChanged()
                 } label: {
-                    Label("Remove Lyrics File", systemImage: "doc.badge.minus")
+                    Label("Remove Lyrics File", systemImage: "text.badge.minus")
                 }
             }
             ArtworkMenu(target: library.album(containing: track).map(ArtworkTarget.album) ?? .track(track))
             Divider()
-            ShareLink(item: track.url) {
+            CompatShareLink(item: track.url) {
                 Label("Share File", systemImage: "square.and.arrow.up")
             }
         } label: {
@@ -194,7 +194,7 @@ struct NowPlayingView: View {
                 Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                     .font(.system(size: 46))
                     .frame(width: 60, height: 60)
-                    .contentTransition(.symbolEffect(.replace.downUp))
+                    .compatSymbolReplaceTransition(value: player.isPlaying, downUp: true)
             }
             Spacer()
             Button { player.next() } label: {
@@ -203,7 +203,7 @@ struct NowPlayingView: View {
             Spacer()
         }
         .buttonStyle(.plain)
-        .sensoryFeedback(.impact(weight: .light), trigger: player.isPlaying)
+        .compatSensoryFeedback(.lightImpact, trigger: player.isPlaying)
     }
 
     private var bottomBar: some View {
@@ -505,7 +505,7 @@ struct QueueView: View {
                     }
                 }
                 .listStyle(.plain)
-                .scrollContentBackground(.hidden)
+                .compatHiddenScrollBackground()
                 .environment(\.editMode, .constant(.active))
                 .confirmationDialog(confirming.map { "Download \u{201C}\($0.song.title)\u{201D}?" } ?? "",
                                     isPresented: Binding(get: { confirming != nil }, set: { if !$0 { confirming = nil } }),
@@ -675,7 +675,7 @@ struct SpeedControl: View {
             }
             .frame(height: 16)
         }
-        .sensoryFeedback(.selection, trigger: player.playbackRate) { _, new in
+        .compatSensoryFeedback(.selection, trigger: player.playbackRate) { _, new in
             Player.ratePresets.contains { abs($0 - new) < 0.001 }
         }
     }

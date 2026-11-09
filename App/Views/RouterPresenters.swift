@@ -11,7 +11,6 @@ struct RouterPresenters: ViewModifier {
     @EnvironmentObject private var library: LibraryStore
     @EnvironmentObject private var playlists: PlaylistStore
     @EnvironmentObject private var backup: BackupService
-    @State private var photoItem: PhotosPickerItem?
 
     func body(content: Content) -> some View {
         content
@@ -30,13 +29,10 @@ struct RouterPresenters: ViewModifier {
                 guard case let .success(urls) = result, !urls.isEmpty else { return }
                 handleImport(urls, kind: router.importKind)
             }
-            .photosPicker(isPresented: active ? $router.showPhotoPicker : .constant(false),
-                          selection: $photoItem, matching: .images)
-            .onChange(of: photoItem) { _, item in
-                guard active, let item, let target = router.photoTarget else { return }
-                photoItem = nil
+            .compatPhotoPicker(isPresented: active ? $router.showPhotoPicker : .constant(false)) { data in
+                guard active, let target = router.photoTarget else { return }
                 Task {
-                    guard let data = try? await item.loadTransferable(type: Data.self) else {
+                    guard let data else {
                         router.message = "Couldn't read that photo."
                         return
                     }

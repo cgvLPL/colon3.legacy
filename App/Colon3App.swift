@@ -113,7 +113,9 @@ struct Colon3App: App {
                     }
                 }
         }
-        .onChange(of: scenePhase) { _, phase in
+        // The one-value form: the two-value one is iOS 17+, and SceneBuilder can't branch on
+        // availability. Deprecated on iOS 17, still works everywhere.
+        .onChange(of: scenePhase) { phase in
             switch phase {
             case .active:
                 soulseek.reconnectIfNeeded()

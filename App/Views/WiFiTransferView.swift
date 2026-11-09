@@ -17,7 +17,7 @@ struct WiFiTransferView: View {
                     Text(address)
                         .font(.title3.monospaced().weight(.semibold))
                         .textSelection(.enabled)
-                    LabeledContent("Access Code") {
+                    CompatLabeledContent("Access Code") {
                         Text(server.accessCode)
                             .font(.title3.monospaced().weight(.bold))
                             .foregroundStyle(.tint)
@@ -29,7 +29,7 @@ struct WiFiTransferView: View {
                         } label: {
                             Label("Copy Link with Code", systemImage: "doc.on.doc")
                         }
-                        ShareLink(item: url) {
+                        CompatShareLink(item: url) {
                             Label("Send Link to Computer…", systemImage: "square.and.arrow.up")
                         }
                     }

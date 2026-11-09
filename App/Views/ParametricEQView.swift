@@ -70,10 +70,8 @@ struct ParametricEQEditor: View {
         .sheet(isPresented: $showSearch) {
             AutoEqSearchSheet(equalizer: equalizer)
         }
-        .alert("Save Profile", isPresented: $naming) {
-            TextField("Name", text: $newName)
-            Button("Save") { equalizer.savePEQ(as: newName) }
-            Button("Cancel", role: .cancel) {}
+        .compatTextFieldAlert("Save Profile", isPresented: $naming, text: $newName, confirm: "Save") {
+            equalizer.savePEQ(as: newName)
         }
         .alert(message ?? "", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) {
             Button("OK", role: .cancel) {}
@@ -315,7 +313,7 @@ struct AutoEqSearchSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             List {
                 if loading {
                     HStack(spacing: 10) {

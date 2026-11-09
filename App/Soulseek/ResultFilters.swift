@@ -27,7 +27,7 @@ struct ResultFilters: Codable, Equatable {
             switch self {
             case .relevance: return "text.magnifyingglass"
             case .bandwidth: return "speedometer"
-            case .freeQueue: return "person.line.dotted.person"
+            case .freeQueue: return CompatSymbol.name("person.line.dotted.person", since: 16, fallback: "person.2")
             case .quality: return "waveform"
             case .files: return "number"
             }

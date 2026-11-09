@@ -15,7 +15,7 @@ struct SettingsView: View {
     @EnvironmentObject private var discord: DiscordPresence
 
     var body: some View {
-        NavigationStack {
+        CompatNavigationStack {
             Form {
                 Section {
                     NavigationLink { StatsView() } label: { StatsPreview() }
@@ -52,8 +52,10 @@ struct SettingsView: View {
                     NavigationLink { AppearanceSettings() } label: {
                         SettingsRow("Appearance", icon: "paintbrush.fill", color: .indigo)
                     }
-                    NavigationLink { SiriSettings() } label: {
-                        SettingsRow("Siri & Shortcuts", icon: "mic.fill", color: .purple)
+                    if #available(iOS 17, *) {
+                        NavigationLink { SiriSettings() } label: {
+                            SettingsRow("Siri & Shortcuts", icon: "mic.fill", color: .purple)
+                        }
                     }
                 }
 
@@ -90,7 +92,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .navigationDestination(isPresented: $router.showWiFiTransfer) { WiFiTransferView() }
+            .compatNavigationDestination(isPresented: $router.showWiFiTransfer) { WiFiTransferView() }
         }
     }
 
@@ -126,7 +128,7 @@ struct SettingsRow: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 29, height: 29)
-                .background(color.gradient, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                .background(color.compatGradient, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
             Text(title)
             Spacer(minLength: 8)
             if let value {
@@ -218,8 +220,8 @@ struct LibrarySettings: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("Songs", value: "\(library.tracks.count)")
-                LabeledContent("Albums", value: "\(library.albums.count)")
+                CompatLabeledContent("Songs", value: "\(library.tracks.count)")
+                CompatLabeledContent("Albums", value: "\(library.albums.count)")
                 Button("Rescan Library") { library.rescan() }
                 Button("Clear Artwork Cache") {
                     Task {
@@ -268,7 +270,7 @@ struct PlaybackSettings: View {
                 NavigationLink {
                     EqualizerView(equalizer: player.equalizer)
                 } label: {
-                    LabeledContent("Equalizer", value: player.bitPerfect ? "Bypassed"
+                    CompatLabeledContent("Equalizer", value: player.bitPerfect ? "Bypassed"
                                    : (player.equalizer.isEnabled ? player.equalizer.displayName : "Off"))
                 }
                 Toggle("Bit-Perfect Mode", isOn: $player.bitPerfect)
@@ -329,8 +331,10 @@ struct SiriSettings: View {
                 Text("These work without any setup. \u{201C}Play a song\u{201D} asks what you want to hear: name a song, an album or an artist from your library, or say \u{201C}<song> by <artist>\u{201D}. Siri learns your playlist names as you make them. Pause, next and previous also work with plain \u{201C}Pause\u{201D} while colon3 is playing.")
             }
             Section {
-                ShortcutsLink()
-                    .frame(maxWidth: .infinity)
+                if #available(iOS 16, *) {
+                    ShortcutsLink()
+                        .frame(maxWidth: .infinity)
+                }
             } footer: {
                 Text("Every action is also in the Shortcuts app, to build your own shortcuts or automations.")
             }
@@ -391,7 +395,7 @@ struct DiscordSettings: View {
                     Section {
                         Button("Try \u{201C}Listening to\u{201D} Again") { discord.retryListening() }
                     } footer: {
-                        Text("Discord didn't accept \u{201C}Listening to\u{201D} from colon3, so it shows \u{201C}Playing colon3\u{201D} instead, with the song and artist under it.")
+                        Text("Discord didn't accept \u{201C}Listening to\u{201D} from colon3, so it shows \u{201C}Playing colon3\u{201D} until colon3 restarts. The reason is in Diagnostics & Logs.")
                     }
                 }
                 Section {
@@ -469,7 +473,7 @@ struct LastFMSection: View {
                     .foregroundStyle(.green)
                 Toggle("Scrobble", isOn: $scrobbling)
                 if lastfm.pendingCount > 0 {
-                    LabeledContent("Waiting to Send", value: "\(lastfm.pendingCount)")
+                    CompatLabeledContent("Waiting to Send", value: "\(lastfm.pendingCount)")
                     Button("Send Now") { lastfm.flush() }
                 }
                 if let lastError = lastfm.lastError {
@@ -527,7 +531,7 @@ struct SoftwareUpdateSection: View {
 
     var body: some View {
         Section {
-            LabeledContent("Installed", value: "\(updates.currentVersion) (\(updates.currentBuild))"
+            CompatLabeledContent("Installed", value: "\(updates.currentVersion) (\(updates.currentBuild))"
                            + (updates.builtChannel == .beta ? " Beta" : ""))
             Picker("Channel", selection: $updates.channel) {
                 ForEach(UpdateChecker.Channel.allCases) { Text($0.label).tag($0) }
@@ -614,10 +618,10 @@ struct BitPerfectStatus: View {
     var body: some View {
         let output = player.output
         VStack(alignment: .leading, spacing: 4) {
-            LabeledContent("Output", value: output.routeName.isEmpty ? "–" : output.routeName)
-            LabeledContent("Hardware Rate", value: Formatting.sampleRate(output.hardwareRate))
+            CompatLabeledContent("Output", value: output.routeName.isEmpty ? "–" : output.routeName)
+            CompatLabeledContent("Hardware Rate", value: Formatting.sampleRate(output.hardwareRate))
             if output.fileRate > 0 {
-                LabeledContent("Song Rate", value: Formatting.sampleRate(output.fileRate))
+                CompatLabeledContent("Song Rate", value: Formatting.sampleRate(output.fileRate))
             }
             if player.current != nil {
                 if output.isBitPerfect(enabled: true) {
