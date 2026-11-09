@@ -126,7 +126,7 @@ final class SpotifyService: ObservableObject {
 
     private func beginAuthSession(url: URL, continuation: CheckedContinuation<URL, Error>) {
         loginContinuation = continuation
-        let session = ASWebAuthenticationSession(url: url, callback: .customScheme("colon3")) { [weak self] callbackURL, error in
+        let session = CompatAuthSession.make(url: url, scheme: "colon3") { [weak self] callbackURL, error in
             Task { @MainActor in
                 self?.finishAuthSession(callbackURL: callbackURL, error: error)
             }

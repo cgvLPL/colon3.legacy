@@ -309,8 +309,10 @@ struct PlaylistDetailView: View {
             }
         }
         .toolbar {
-            if let playlist {
-                ToolbarItemGroup(placement: .compatTrailing) {
+            // A bare `if let` here needs `buildIf`, which is iOS 16+; the condition lives
+            // inside the group instead, where a plain ViewBuilder handles it on iOS 15.
+            ToolbarItemGroup(placement: .compatTrailing) {
+                if let playlist {
                     EditButton()
                     Menu {
                         Button { addingSongs = true } label: { Label("Add Songs", systemImage: "plus") }

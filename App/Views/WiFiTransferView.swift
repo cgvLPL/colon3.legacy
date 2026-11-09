@@ -29,8 +29,10 @@ struct WiFiTransferView: View {
                         } label: {
                             Label("Copy Link with Code", systemImage: "doc.on.doc")
                         }
-                        CompatShareLink(item: url) {
-                            Label("Send Link to Computer…", systemImage: "square.and.arrow.up")
+                        if let shareURL = URL(string: url) {
+                            CompatShareLink(item: shareURL) {
+                                Label("Send Link to Computer…", systemImage: "square.and.arrow.up")
+                            }
                         }
                     }
                     Button("New Access Code") { server.newCode() }

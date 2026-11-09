@@ -312,7 +312,10 @@ final class AVPlayerBackend: PlaybackBackend {
 
     var rate: Float = 1 {
         didSet {
-            player.defaultRate = rate
+            // `defaultRate` is iOS 16+; on iOS 15 the rate is re-applied while playing instead.
+            if #available(iOS 16, *) {
+                player.defaultRate = rate
+            }
             if player.rate > 0 { player.rate = rate }
         }
     }
@@ -340,8 +343,14 @@ final class AVPlayerBackend: PlaybackBackend {
     }
 
     func play() {
-        player.defaultRate = rate
-        player.play()
+        if #available(iOS 16, *) {
+            player.defaultRate = rate
+            player.play()
+        } else {
+            // iOS 15 has no `defaultRate`: play() resets the rate to 1, so re-apply it after.
+            player.play()
+            player.rate = rate
+        }
     }
     func pause() { player.pause() }
 

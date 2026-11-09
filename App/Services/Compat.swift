@@ -1,3 +1,4 @@
+import AuthenticationServices
 import PhotosUI
 import SwiftUI
 import UIKit
@@ -59,6 +60,20 @@ enum CompatSymbol {
     static func name(_ modern: String, since major: Int, fallback: String) -> String {
         let version = OperatingSystemVersion(majorVersion: major, minorVersion: 0, patchVersion: 0)
         return ProcessInfo.processInfo.isOperatingSystemAtLeast(version) ? modern : fallback
+    }
+}
+
+// MARK: - Sign-in
+
+/// `ASWebAuthenticationSession` for OAuth sign-in. The `callback:` form is iOS 17.4+; older
+/// systems get the `callbackURLScheme:` form, which behaves the same.
+enum CompatAuthSession {
+    static func make(url: URL, scheme: String, completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler) -> ASWebAuthenticationSession {
+        if #available(iOS 17.4, *) {
+            return ASWebAuthenticationSession(url: url, callback: .customScheme(scheme), completionHandler: completionHandler)
+        } else {
+            return ASWebAuthenticationSession(url: url, callbackURLScheme: scheme, completionHandler: completionHandler)
+        }
     }
 }
 

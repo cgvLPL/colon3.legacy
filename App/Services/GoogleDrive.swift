@@ -172,7 +172,7 @@ final class GoogleDrive: ObservableObject {
 
     private func beginAuthSession(url: URL, scheme: String, continuation: CheckedContinuation<URL, Error>) {
         loginContinuation = continuation
-        let session = ASWebAuthenticationSession(url: url, callback: .customScheme(scheme)) { [weak self] callbackURL, error in
+        let session = CompatAuthSession.make(url: url, scheme: scheme) { [weak self] callbackURL, error in
             Task { @MainActor in
                 self?.finishAuthSession(callbackURL: callbackURL, error: error)
             }

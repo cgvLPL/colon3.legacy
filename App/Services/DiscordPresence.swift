@@ -203,7 +203,7 @@ final class DiscordPresence: ObservableObject {
 
     private func beginAuthSession(url: URL, continuation: CheckedContinuation<URL, Error>) {
         loginContinuation = continuation
-        let session = ASWebAuthenticationSession(url: url, callback: .customScheme(redirectScheme)) { [weak self] callbackURL, error in
+        let session = CompatAuthSession.make(url: url, scheme: redirectScheme) { [weak self] callbackURL, error in
             Task { @MainActor in
                 self?.finishAuthSession(callbackURL: callbackURL, error: error)
             }
